@@ -1,9 +1,10 @@
 from googleapiclient.discovery import build
+import secret as key
 
-API_KEY = "AIzaSyB-DN3bTPNC5fnfBEcEXQurycWKshVFgOo"
+
 CHANNEL_IDS = ["UCGaYiIpVOEzUWWS9A1zrodQ"]
 
-youtube = build('youtube', 'v3', developerKey=API_KEY)
+youtube = build('youtube', 'v3', developerKey=key.API_KEY)
 
 def get_channel_detail():
 

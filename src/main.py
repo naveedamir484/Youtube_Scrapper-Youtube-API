@@ -1,5 +1,6 @@
 from googleapiclient.discovery import build
 from src.keys import API_KEY
+from src.modes import ModeEnum
 
 class Scrapper:
 
@@ -26,8 +27,8 @@ class Scrapper:
 
             try:
 
-                all_playlists_detail = self.get_channel_playlists(channel_id=response['items'][i].get('id'))
-                all_videos_detail = self.get_videos_detail(self.get_video_ids(response['items'][i]['contentDetails']['relatedPlaylists']['uploads']))
+                all_playlists_detail = self._get_channel_playlists(channel_id=response['items'][i].get('id'))
+                all_videos_detail = self._get_videos_detail(self._get_video_ids(response['items'][i]['contentDetails']['relatedPlaylists']['uploads']))
 
                 data = dict(channel_name=response['items'][i]['snippet'].get('title'),
                             channel_id=response['items'][i].get('id'),
@@ -50,7 +51,7 @@ class Scrapper:
         return all_data
 
 
-    def get_video_ids(self, playlist_id) -> list:
+    def _get_video_ids(self, playlist_id) -> list:
 
         video_ids = []
         next_page_token = None
@@ -82,7 +83,7 @@ class Scrapper:
         return video_ids
 
 
-    def get_videos_detail(self, video_ids) -> list:
+    def _get_videos_detail(self, video_ids) -> list:
 
         all_video_stats = []
 
@@ -121,7 +122,7 @@ class Scrapper:
 
         return all_video_stats
 
-    def get_playlists_detail(self, playlist_ids) -> list:
+    def _get_playlists_detail(self, playlist_ids) -> list:
 
         all_playlists_stats = []
 
@@ -143,7 +144,7 @@ class Scrapper:
 
                 try:
 
-                    playlist_videos = self.get_videos_detail(self.get_video_ids(response['items'][i]['id']))
+                    playlist_videos = self._get_videos_detail(self._get_video_ids(response['items'][i]['id']))
 
                     playlist = dict(
                         playlist_title=response['items'][i]['snippet']['title'],
@@ -162,7 +163,7 @@ class Scrapper:
         return all_playlists_stats
 
 
-    def get_channel_playlists(self, channel_id) -> list:
+    def _get_channel_playlists(self, channel_id) -> list:
 
         all_playlists = []
         next_page_token = None
@@ -187,7 +188,7 @@ class Scrapper:
 
                 try:
 
-                    playlist_videos = self.get_videos_detail(self.get_video_ids(response['items'][i]['id']))
+                    playlist_videos = self._get_videos_detail(self._get_video_ids(response['items'][i]['id']))
 
                     playlist = dict(
                         playlist_title=response['items'][i]['snippet']['title'],
@@ -211,7 +212,7 @@ class Scrapper:
 
 
 
-    def search_video_ids(self, keyword) -> list:
+    def _search_video_ids(self, keyword) -> list:
 
         video_ids = []
         next_page_token = None
@@ -246,7 +247,7 @@ class Scrapper:
         return video_ids
 
 
-    def search_channel_ids(self, keyword) -> list:
+    def _search_channel_ids(self, keyword) -> list:
 
         channel_ids = []
         next_page_token = None
@@ -279,7 +280,7 @@ class Scrapper:
 
         return channel_ids
 
-    def search_playlist_ids(self, keyword) -> list:
+    def _search_playlist_ids(self, keyword) -> list:
 
         playlist_ids = []
         next_page_token = None
@@ -312,26 +313,26 @@ class Scrapper:
         return playlist_ids
 
 
-    def search_videos(self, keyword) -> list:
+    def _search_videos(self, keyword) -> list:
 
-        video_ids = self.search_video_ids(keyword)
+        video_ids = self._search_video_ids(keyword)
 
-        videos_detail = self.get_videos_detail(video_ids)
+        videos_detail = self._get_videos_detail(video_ids)
 
         return videos_detail
 
 
-    def search_playlists(self, keyword) -> list:
+    def _search_playlists(self, keyword) -> list:
 
-        playlist_ids = self.search_playlist_ids(keyword)
+        playlist_ids = self._search_playlist_ids(keyword)
 
-        playlists_detail = self.get_playlists_detail(playlist_ids)
+        playlists_detail = self._get_playlists_detail(playlist_ids)
         return playlists_detail
 
 
-    def search_channels(self, keyword) -> list:
+    def _search_channels(self, keyword) -> list:
 
-        channel_ids = self.search_channel_ids(keyword)
+        channel_ids = self._search_channel_ids(keyword)
         all_channel_data = []
 
         for channel_id in channel_ids[:4]:
@@ -346,23 +347,13 @@ class Scrapper:
         return all_channel_data
 
 
-# channel_satistics = get_channel_detail(["UCGaYiIpVOEzUWWS9A1zrodQ"])
-# print(channel_satistics)
+    def search(self, keyword, mode_type) -> list:
 
-# video_ids = get_video_ids("UUfM3zsQsOnfWNUppiycmBuw")
-# print(video_ids)
-
-# video_details = get_videos_detail(video_ids)
-# print(video_details)
-
-# channel_playlists = get_channel_playlists("UCfM3zsQsOnfWNUppiycmBuw")
-# print(channel_playlists)
-
-# video = search_videos("eminem")
-# print(video)
-
-# channels = search_channels("eminem")
-# print(channels)
-
-# playlists = search_playlist("eminem")
-# print(playlists)
+        if mode_type == ModeEnum.SEARCH_VIDEOS.value:
+            return self._search_videos(keyword)
+        elif mode_type == ModeEnum.SEARCH_PLAYLISTS.value:
+            return self._search_playlists(keyword)
+        elif mode_type == ModeEnum.SEARCH_CHANNELS.value:
+            return self._search_channels(keyword)
+        else:
+            print("mode_type is incorrect")

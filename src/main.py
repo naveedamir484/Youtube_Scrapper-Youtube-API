@@ -85,7 +85,7 @@ class Scrapper:
 
     def _get_videos_detail(self, video_ids) -> list:
 
-        all_video_stats = []
+        all_videos_stats = []
 
         for i in range(0, len(video_ids), 50):
 
@@ -114,13 +114,13 @@ class Scrapper:
                          video_thumbnail_url=video['snippet']['thumbnails']['medium']['url'],
                          video_desc=video['snippet']['description'])
 
-                    all_video_stats.append({video['id']: video_stats})
+                    all_videos_stats.append({video['id']: video_stats})
 
                 except Exception as ex:
                     print(ex)
 
 
-        return all_video_stats
+        return all_videos_stats
 
     def _get_playlists_detail(self, playlist_ids) -> list:
 
@@ -224,7 +224,10 @@ class Scrapper:
                 request = self.youtube.search().list(
                     part="snippet",
                     q=keyword,
+                    order="viewCount",
                     maxResults=50,
+                    regionCode='IN',
+                    relevanceLanguage='en',
                     pageToken=next_page_token,
                     type="video")
 
@@ -316,6 +319,7 @@ class Scrapper:
     def _search_videos(self, keyword) -> list:
 
         video_ids = self._search_video_ids(keyword)
+        print("total results found : ", len(video_ids))
 
         videos_detail = self._get_videos_detail(video_ids)
 
